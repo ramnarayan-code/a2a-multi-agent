@@ -1,5 +1,5 @@
 # Multi-Agent eCommerce System Specification
-# https://a2a-protocol.org/latest/tutorials/python/4-agent-executor/
+
 **Version:** 1.0  
 **Date:** February 4, 2026  
 **Framework:** A2A (Agent-to-Agent)  
