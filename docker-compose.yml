@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce_network
+
+  search-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.search
+    environment:
+      - REDIS_HOST=redis
+      - SERVICE_NAME=search-agent
+    networks:
+      - ecommerce_network
+    depends_on:
+      - redis
+
+  cart-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.cart
+    environment:
+      - REDIS_HOST=redis
+      - SERVICE_NAME=cart-agent
+    networks:
+      - ecommerce_network
+    depends_on:
+      - redis
+
+  checkout-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.checkout
+    environment:
+      - REDIS_HOST=redis
+      - SERVICE_NAME=checkout-agent
+    networks:
+      - ecommerce_network
+    depends_on:
+      - redis
+
+  order-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.order
+    environment:
+      - REDIS_HOST=redis
+      - SERVICE_NAME=order-agent
+    networks:
+      - ecommerce_network
+    depends_on:
+      - redis
+
+  master-router:
+    build:
+      context: .
+      dockerfile: Dockerfile.master
+    ports:
+      - "7860:7860"
+    environment:
+      - REDIS_HOST=redis
+      - SEARCH_SERVICE_URL=http://search-agent:8000/a2a/tasks/send
+      - CART_SERVICE_URL=http://cart-agent:8000/a2a/tasks/send
+      - CHECKOUT_SERVICE_URL=http://checkout-agent:8000/a2a/tasks/send
+      - ORDER_SERVICE_URL=http://order-agent:8000/a2a/tasks/send
+    networks:
+      - ecommerce_network
+    depends_on:
+      - search-agent
+      - cart-agent
+      - checkout-agent
+      - order-agent
+
+networks:
+  ecommerce_network:
+    driver: bridge

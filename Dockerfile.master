@@ -1,0 +1,18 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy shared modules
+COPY services/shared/ ./services/shared/
+
+# Copy agent specific code
+COPY services/master/ ./services/master/
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+CMD ["python", "services/master/main.py"]
